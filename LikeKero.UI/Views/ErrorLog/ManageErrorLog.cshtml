@@ -1,0 +1,254 @@
+﻿
+@{
+    ViewData["Title"] = "Error Logs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+
+    var versionName = Context.Session.GetString("SessionVersionName");
+    string sessionVersion = versionName == null ? "" : Newtonsoft.Json.JsonConvert.DeserializeObject<string>(versionName);
+    string imgPath = string.IsNullOrEmpty(sessionVersion) ? "" : "/" + sessionVersion;
+}
+
+@*<link href="~/css/autocomplete.css" rel="stylesheet" />*@
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+<link href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+<script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<style>
+    .bulkImpLogHT {
+        height: auto !important;
+        max-height: 400px !important
+    }
+</style>
+
+<div class="conHeader">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="pull-left">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">Error Logs</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="conInner">
+    <div class="formGroupTop pos mo-pt-0">
+        <div class="mobileFilter">
+            <div class="showFilterBtn" id="showBtnID"><button type="button" class="searchfilterbtn">Show Search Filter<i class="fa fa-chevron-down"></i></button></div>
+            <div class="hideShowfilter">
+                <div class="filterData pt-3 mobile4Lis">
+                    <ul class="formGroupTopListing">
+                        <li>
+                            <div class="form-group">
+                                @Html.TextBox("FirstName", null, new { @class = "form-control", placeholder = "First Name" })
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-group">
+                                @Html.TextBox("LastName", null, new { @class = "form-control", placeholder = "Last Name" })
+                            </div>
+                        </li>
+                        <li class="firstLastName">
+                            <div class="form-group">
+                                @Html.TextBox("ErrorMessage", null, new { @class = "form-control", placeholder = "Error Message" })
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-group">
+                                <div class="calIcon">
+                                    @Html.TextBox("ErrorFromDate", null, "{0: MMM-dd-yyyy}", new { @class = "form-control styledate", @data_date_end_date = "0d", placeholder = "From Date" })
+                                    <button type="button" class="ui-datepicker-trigger clsDatePicker"><i class="fa fa-calendar cal-btn"></i></button>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-group">
+                                <div class="calIcon">
+                                    @Html.TextBox("ErrorToDate", null, "{0: MMM-dd-yyyy}", new { @class = "form-control styledate", @data_date_end_date = "0d", placeholder = "To Date" })
+                                    <button type="button" class="ui-datepicker-trigger clsDatePicker"><i class="fa fa-calendar cal-btn"></i></button>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-group mob-margin-tp0">
+                                <button type="button" class="btn btn-primary btnSearch btn-search" id="btnSearch1">@*<i class="fa fa-search"></i>*@ <img src='@Url.Content("~/images"+imgPath+"/search.png")' /> </button>
+                                <button type="button" class="btn btn-default btn-clear" id="btnClear">@*<i class="fa fa-refresh"></i>*@ <img src='@Url.Content("~/images"+imgPath+"/refresh.png")' /></button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="hideFilterBtn" id="hideBtnId"><button type="button" class="searchfilterbtn">Hide Search Filter <i class="fa fa-chevron-up"></i></button></div>
+            </div>
+        </div>
+        <div id="filterBodyAddUser" class="float-right">
+            <div class="filterWrapp">
+                <div id="sidebarFilterAddUser" class="bulkImport">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div id="divDataTable_length"></div>
+<div class="chkTBL">
+    <div class="bulkImpLogHT mngerrorlog mobileTablenowrap">
+        <table id="mydatatable" class="table">
+            <thead>
+                <tr class="uppercaseText">
+                    <th>Error LogID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Error Message</th>
+                    <th style="width:15%">Date</th>
+                    <th style="width:10%" class="text-center"></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="divdataTables_info"></div>
+<script type="text/javascript">
+                $(document).ready(function () {
+                    $("#mydatatable").tableHeadFixer({ "head": true, "top": 1 });
+       // const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var langUrl = $("#LangUrl").val();
+        var mytable = $('#mydatatable').dataTable({
+            "ajax": {
+                "url": "@Url.Content("~/ErrorLog/FillTableErrorLogAsync")",
+                "type": "POST",
+                "error": function (x, y, z) {
+                }
+            },
+            "language":
+            {
+                "url": langUrl
+            },
+            "aaSorting": [[4, 'desc']],
+            "serverSide": true,
+            "bStateSave": false,
+            //"pagingType": "listbox",  //pagination type using pulgin
+            "processing": true,
+            //"sDom": 'lrtip',
+             "pageLength": 50,
+            "pagingType": "full_numbers",
+            "dom": '<"top"i>rt<"bottom"flp><"clear">',
+            "filter": false,
+             "oLanguage": {
+            "oPaginate": {
+            "sFirst": "<i class='fa fa-angle-double-left'></i>",
+            "sPrevious": "«",
+            "sNext": "»",
+            "sLast": "<i class='fa fa-angle-double-right'></i>"
+             }
+            },
+            "bDeferRender": true,//hide the default search filter textbox by removing "f"
+            "aoColumns":
+                [
+                    { "data": "ErrorLogID", "sName": "ErrorLogID", "visible":false },
+                    { "data": "FirstName", "sName": "FirstName" },
+                    { "data": "LastName", "sName": "LastName" },
+                    { "data": "ErrorMessage", "sName": "ErrorMessage" },
+                    { "data": "ErrorDateDisplay", "sName": "ErrorDateTime" },
+                    //{
+                    //    "data": "ErrorDateTime", "sName": "ErrorDateTime" , "mRender": function (data) {
+                    //        let current_datetime = new Date(data);
+                    //        return current_datetime.getDate() + "-" + months[current_datetime.getMonth()] + "-" + current_datetime.getFullYear();
+                    //    }
+                    //},
+                    {
+                        "data": "ErrorLogID", "sName": "", "class": "", "orderable": false, "mRender": function (data, type, full) {
+                            if (data != null) {
+                                //return "<div><a class='editInnerA' href='javascript:void(0);' onClick=ViewErrorLogDetails('" + data + "')><i class='fa fa-eye' ></i></a></div>";
+                                return "<div class='tablehoverbuttons'> <i class='fa fa-ellipsis-h'></i> <div class='buttonshover'><div class='editbtn'><a class='' href='javascript:void(0);' onClick=ViewErrorLogDetails('" + data + "')><span><img  title='View' src='@Url.Content("~/images/view.png")' /></span></a></div> </div> </div>";
+                            }
+                            else
+                                return "";
+                        }
+                    },
+                    { "data": "ErrorFromDate", "sName": "ErrorFromDate", "visible": false },
+                    { "data": "ErrorToDate", "sName": "ErrorToDate", "visible": false },
+                ]
+        });
+          mytable.on('order.dt', function () { $('.dataTables_paginate,.dataTables_info').show(); });
+        mytable.on('length.dt', function (e, settings, len) { $('.dataTables_paginate,.dataTables_info').show(); });
+
+        $("#divDataTable_length").append($(".dataTables_info"));
+        $("#divdataTables_info").append($(".dataTables_length"));
+        $("#divdataTables_info").append($(".dataTables_paginate"));
+
+        function fnGetDataForActivities() {
+
+            var searchObj = new Object();
+            searchObj.FromDate = $('#ErrorFromDate').val();
+            searchObj.ToDate = $('#ErrorToDate').val();
+            searchObj.ErrorMessage = $('#ErrorMessage').val();
+            searchObj.FirstName = $('#FirstName').val();
+            searchObj.LastName = $('#LastName').val();
+            return searchObj;
+        }
+
+        function fnFilterActivities() {
+            searchObj = fnGetDataForActivities();
+            $("#mydatatable").dataTable().fnMultiFilter({
+                "ErrorFromDate": searchObj.FromDate,
+                "ErrorToDate": searchObj.ToDate,
+                "ErrorMessage": searchObj.ErrorMessage,
+                "FirstName": searchObj.FirstName,
+                "LastName": searchObj.LastName
+            });
+            $('#dismiss').trigger('click');
+        }
+
+        function clearfilter() {
+            $('#ErrorFromDate').val('');
+            $('#ErrorToDate').val('');
+            $('#ErrorMessage').val('');
+            $('#FirstName').val('');
+            $('#LastName').val('');
+            
+            fnFilterActivities();
+        }
+
+        $('#btnClear').click(function () {
+            clearfilter();
+        });
+
+        $('.btnSearch').click(function () {
+            fnFilterActivities();
+        });
+
+    });
+</script>
+
+<script>
+    function ViewErrorLogDetails(ErrorLogID) {
+        @*var url = '@Url.Action("ErrorLogDetails", "ErrorLog")?ErrorLogID=' + ErrorLogID + '';
+        window.open(url, '_blank');*@
+
+        $('#sidebarFilterAddUser').show();
+        $('#sidebarFilterAddUser').addClass('active');
+        $('.overlay').show();
+        $('.collapse.in').toggleClass('in');
+        $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+
+
+        var url = '@Url.Action("ErrorLogDetails", "ErrorLog")?ErrorLogID=' + ErrorLogID + '';
+        $("#sidebarFilterAddUser").load(url);
+
+    }
+
+    $(".styledate").datepicker({
+        format: 'M-dd-yyyy',
+        autoclose: true,
+        clearBtn: true,
+        todayBtn: false,
+        todayHighlight: true
+    });
+
+    $(".clsDatePicker").on('click', function (e) {
+        $(this).closest('.calIcon').find('.styledate').datepicker().focus();
+    });
+
+</script>

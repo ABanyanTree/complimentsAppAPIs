@@ -1,0 +1,61 @@
+﻿@*@model LikeKero.UI.ViewModels.Response.User.EntityNameReponseVM*@
+@{
+    var response = ViewBag.Response;
+
+    var versionName = Context.Session.GetString("SessionVersionName");
+    string sessionVersion = versionName == null ? "" : Newtonsoft.Json.JsonConvert.DeserializeObject<string>(versionName);
+    string imgPath = string.IsNullOrEmpty(sessionVersion) ? "" : "/" + sessionVersion;
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="siteMapWrapp">
+            <div class="mainTreeWrapp">
+                <div class="innerTreeWrap">
+
+                    @foreach (var res in response)
+                    {
+                        <ol class="breadcrumb treeBreadcrumb" style="display:none">
+                            <li class="siteMap"><img src='@Url.Content("~/images"+imgPath+"/site-map.png")' /></li>
+                            @if (res.Group1Name != null)
+                            {
+                                <li class="breadcrumb-item @(res.Group2Name == null ? "active" : "")" aria-current="page">@res.Group1Name</li>
+                            }
+
+                            @if (res.Group2Name != null)
+                            {
+                                <li class="breadcrumb-item @(res.Group3Name == null ? "active" : "")" aria-current="page">@res.Group2Name</li>
+                            }
+                            @if (res.Group3Name != null)
+                            {
+                                <li class="breadcrumb-item @(res.Group4Name == null ? "active" : "")" aria-current="page">@res.Group3Name</li>
+                            }
+
+                            @if (res.Group4Name != null)
+                            {
+                                <li class="breadcrumb-item @(res.Group5Name == null ? "active" : "")" aria-current="page">@res.Group4Name</li>
+                            }
+
+                            @if (res.Group5Name != null)
+                            {
+                                <li class="breadcrumb-item active" aria-current="page">@res.Group5Name</li>
+                            }
+
+
+
+                        </ol>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('.plusCircleIcon').on('click', function () {
+        $('.addEditUser').show();
+        $('.tabRTFooter').show();
+        $('.treeBreadcrumb').show();
+        $('#treeGrouping').hide();
+    });
+
+</script>

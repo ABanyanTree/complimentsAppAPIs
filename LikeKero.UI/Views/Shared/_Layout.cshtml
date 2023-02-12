@@ -1,0 +1,664 @@
+﻿@using LikeKero.UI.ViewModels
+@using Microsoft.AspNetCore.Http
+<!DOCTYPE html>
+@{
+    string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    var value = Context.Session.GetString("UserObject");
+    AuthSuccessResponseVM objSessionUser = value == null ? default(AuthSuccessResponseVM) : Newtonsoft.Json.JsonConvert.DeserializeObject<AuthSuccessResponseVM>(value);
+
+    //Role list
+
+    //string roleName = string.Empty;
+    //if (objSessionUser?.userRoles.Count > 0)
+    //{
+    //    foreach (UserRoleResponseVM roleNm in objSessionUser?.userRoles)
+    //    {
+    //        roleName += roleNm.RoleName + ", ";
+    //    }
+    //}
+    //roleName = roleName.TrimEnd(',');
+    
+
+    string URoleId = objSessionUser.URoleId;
+
+
+
+    List<FeatureMasterResponseVM> lstParentFeatures = objSessionUser.UserFeatures.Where(x => string.IsNullOrEmpty(x.ParentFeatureId)).Where(x => x.IsLearnerMenu == false).OrderBy(x => x.DisplayOrder).ToList();
+    List<FeatureMasterResponseVM> lstChildFeatures = objSessionUser.UserFeatures.Where(x => !string.IsNullOrEmpty(x.ParentFeatureId)).Where(x => x.IsShowInMenu == true).Where(x => x.IsLearnerMenu == false).ToList();
+
+
+    string initials = objSessionUser.FirstName?.Substring(0, 1) + objSessionUser.LastName?.Substring(0, 1);
+    string userName = string.Concat(objSessionUser.FirstName, " ", objSessionUser.LastName);
+
+    var sessionLevel1 = Context.Session.GetString("LEVEL1_MENU");
+    string level1 = sessionLevel1 == null ? "" : Newtonsoft.Json.JsonConvert.DeserializeObject<string>(sessionLevel1);
+
+    var sessionLevel2 = Context.Session.GetString("LEVEL2_MENU");
+    string level2 = sessionLevel2 == null ? "" : Newtonsoft.Json.JsonConvert.DeserializeObject<string>(sessionLevel2);
+
+
+    var versionName = Context.Session.GetString("SessionVersionName");
+    string sessionVersion = versionName == null ? "" : Newtonsoft.Json.JsonConvert.DeserializeObject<string>(versionName);
+    string imgPath = string.IsNullOrEmpty(sessionVersion) ? "" : "/" + sessionVersion;
+
+
+    var footer = Context.Session.GetString("SessionFooterText");
+    string footerText = versionName == null ? "" : Newtonsoft.Json.JsonConvert.DeserializeObject<string>(footer);
+    //string currDate = string.Concat(DateTime.Now.Year, "-", DateTime.Now.Month, "-", 01);
+
+    var stagingSite = Context.Session.GetString("StagingSiteMessage");
+    string stagingSiteText = stagingSite == null ? "" : Newtonsoft.Json.JsonConvert.DeserializeObject<string>(stagingSite);
+}
+<style>
+</style>
+
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=10" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+
+    <title> LikeKero - @ViewBag.Title</title>
+    <environment include="Development">
+        @if (string.IsNullOrEmpty(sessionVersion))
+        {
+            <link rel="stylesheet" asp-href-include="~/lib/bootstrap/dist/css/bootstrap.css,~/lib/bootstrap/dist/css/bootstrap-grid.css,~/lib/bootstrap/dist/css/bootstrap-reboot.css" />
+            <link href="~/css/app-theme.css" rel="stylesheet" />
+            <script src="~/lib/jquery/dist/jquery.js"></script>
+            <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+            <script src="~/lib/jquery-validation/dist/additional-methods.js"></script>
+            <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+            <link href="~/css/font-awesome-four.min.css" rel="stylesheet" />
+            <link href="~/css/jquery-confirm.css" rel="stylesheet" />
+            <script src="~/js/jquery-confirm.js"></script>
+            <script src="~/js/Utility.js"></script>
+            <link href="~/css/dataTables1.10.6/jquery.dataTables.css" rel="stylesheet" />
+            <script src="~/js/Datatable1.10.6/jquery.dataTables.js"></script>
+            <script src="~/js/Datatable1.10.6/pagingPlugins.js"></script>
+            <script src="~/js/Datatable1.10.6/fnMultiFilter.js"></script>
+            <script src="~/lib/jquery.alphanum/jquery.alphanum.min.js"></script>
+            <link href="~/css/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+            <link rel="shortcut icon" type="image/x-icon" href="~/images/favicon.ico" />
+            <script src="~/js/jquery.mCustomScrollbar.concat.min.js"></script>
+            <script src="~/js/tableHeadFixer.js"></script>
+            <script src="~/lib/bootstrap/dist/js/popper.min.js"></script>
+            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.0.1/fullcalendar.min.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.0.1/fullcalendar.min.js"></script>
+        }
+        else
+        {
+            <link rel="stylesheet" asp-href-include="~/lib/bootstrap/dist/css/bootstrap.css,~/lib/bootstrap/dist/css/bootstrap-grid.css,~/lib/bootstrap/dist/css/bootstrap-reboot.css" />
+            <link href="~/css/@sessionVersion/app-theme.css" rel="stylesheet" />
+            <script src="~/lib/jquery/dist/jquery.js"></script>
+            <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+            <script src="~/lib/jquery-validation/dist/additional-methods.js"></script>
+            <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+            <link href="~/css/font-awesome-four.min.css" rel="stylesheet" />
+            <link href="~/css/jquery-confirm.css" rel="stylesheet" />
+            <script src="~/js/jquery-confirm.js"></script>
+            <script src="~/js/Utility.js"></script>
+            <link href="~/css/dataTables1.10.6/jquery.dataTables.css" rel="stylesheet" />
+            <script src="~/js/Datatable1.10.6/jquery.dataTables.js"></script>
+            <script src="~/js/Datatable1.10.6/pagingPlugins.js"></script>
+            <script src="~/js/Datatable1.10.6/fnMultiFilter.js"></script>
+            <script src="~/lib/jquery.alphanum/jquery.alphanum.min.js"></script>
+            <link href="~/css/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+            <link rel="shortcut icon" type="image/x-icon" href="~/images/@sessionVersion/favicon.ico" />
+            <script src="~/js/jquery.mCustomScrollbar.concat.min.js"></script>
+            <script src="~/js/tableHeadFixer.js"></script>
+            <script src="~/lib/bootstrap/dist/js/popper.min.js"></script>
+            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.0.1/fullcalendar.min.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.0.1/fullcalendar.min.js"></script>
+        }
+    </environment>
+    <environment exclude="Development">
+        @if (string.IsNullOrEmpty(sessionVersion))
+        {
+            <link rel="stylesheet" asp-href-include="~/lib/bootstrap/dist/css/bootstrap.css,~/lib/bootstrap/dist/css/bootstrap-grid.css,~/lib/bootstrap/dist/css/bootstrap-reboot.css" />
+            <link href="~/css/app-theme.css" rel="stylesheet" />
+            <script src="~/lib/jquery/dist/jquery.js"></script>
+            <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+            <script src="~/lib/jquery-validation/dist/additional-methods.js"></script>
+            <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+            <link href="~/css/font-awesome-four.min.css" rel="stylesheet" />
+            <link href="~/css/jquery-confirm.css" rel="stylesheet" />
+            <script src="~/js/jquery-confirm.js"></script>
+            <script src="~/js/Utility.js"></script>
+            <link href="~/css/dataTables1.10.6/jquery.dataTables.css" rel="stylesheet" />
+            <script src="~/js/Datatable1.10.6/jquery.dataTables.js"></script>
+            <script src="~/js/Datatable1.10.6/pagingPlugins.js"></script>
+            <script src="~/js/Datatable1.10.6/fnMultiFilter.js"></script>
+            <script src="~/lib/jquery.alphanum/jquery.alphanum.min.js"></script>
+            <link href="~/css/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+            <link rel="shortcut icon" type="image/x-icon" href="~/images/favicon.ico" />
+            <script src="~/js/jquery.mCustomScrollbar.concat.min.js"></script>
+            <script src="~/js/tableHeadFixer.js"></script>
+            <script src="~/lib/bootstrap/dist/js/popper.min.js"></script>
+            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.0.1/fullcalendar.min.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.0.1/fullcalendar.min.js"></script>
+        }
+        else
+        {
+            <link rel="stylesheet" asp-href-include="~/lib/bootstrap/dist/css/bootstrap.css,~/lib/bootstrap/dist/css/bootstrap-grid.css,~/lib/bootstrap/dist/css/bootstrap-reboot.css" />
+            <link href="~/css/@sessionVersion/app-theme.css" rel="stylesheet" />
+            <script src="~/lib/jquery/dist/jquery.js"></script>
+            <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+            <script src="~/lib/jquery-validation/dist/additional-methods.js"></script>
+            <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+            <link href="~/css/font-awesome-four.min.css" rel="stylesheet" />
+            <link href="~/css/jquery-confirm.css" rel="stylesheet" />
+            <script src="~/js/jquery-confirm.js"></script>
+            <script src="~/js/Utility.js"></script>
+            <link href="~/css/dataTables1.10.6/jquery.dataTables.css" rel="stylesheet" />
+            <script src="~/js/Datatable1.10.6/jquery.dataTables.js"></script>
+            <script src="~/js/Datatable1.10.6/pagingPlugins.js"></script>
+            <script src="~/js/Datatable1.10.6/fnMultiFilter.js"></script>
+            <script src="~/lib/jquery.alphanum/jquery.alphanum.min.js"></script>
+            <link href="~/css/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+            <link rel="shortcut icon" type="image/x-icon" href="~/images/@sessionVersion/favicon.ico" />
+            <script src="~/js/jquery.mCustomScrollbar.concat.min.js"></script>
+            <script src="~/js/tableHeadFixer.js"></script>
+            <script src="~/lib/bootstrap/dist/js/popper.min.js"></script>
+            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.0.1/fullcalendar.min.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.0.1/fullcalendar.min.js"></script>
+        }
+    </environment>
+
+</head>
+<body>
+    <div id="dvLoading" class="loaderImg text-center" style="display:none">
+        <div class="ladingdiv">
+            <div class="mainLoader">
+            </div>
+            <h4>Loading...</h4>
+        </div>
+    </div>
+    <div class="overlay"></div>
+    <!-- Header Start -->
+    <div class="navbar-fixed-top learnPortHeader">
+        <div class="pull-left myCourLogo mainLogoAdmin">
+            <a>
+                <img style="width:120px" src='@Url.Content("~/Images" + imgPath + "/main-logo.png")' />
+            </a>
+        </div>
+        @if (env == "Development" || env == "Staging")
+        {
+            <div class="sloagnText">
+                @stagingSiteText
+            </div>
+
+        }
+        <div class="navbarRight">
+            <nav class="navbar navbar-expand-lg">
+                <button class="navbar-toggler" type="button" data-target="#navigation" style="display:none">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse">
+                    <ul class="navbar-nav topListing">
+                        <li class="nav-item shopCartIcon posRel announcementdrp">
+                            @*<a asp-controller="Announcements" asp-action="GetAllAnnouncementsMarquee" asp-route-currentDate="@currDate" title="Announcements">
+                                <img src='@Url.Content("~/Images" + imgPath + "/AnnouncementTop.png")' />
+                            </a>*@
+                        </li>
+
+                     
+
+                       
+
+                        <li class="shopCartIcon posRel">
+                            @*<a asp-controller="@adminFAQ.ControllerName" asp-action="@adminFAQ.ActionName" title="Help">
+                                    <img src='@Url.Content("~/Images" + imgPath + "/Help_icon.png")' />
+                                </a>*@
+                        </li>
+                        <!--KIRAN(21JAN2020): Cart Count Management-->
+                        <li class="shopCartIcon posRel">
+                            <a asp-controller="Cart" asp-action="ShoppingCart" title="Shopping Cart">
+                                <img src='@Url.Content("~/Images" + imgPath + "/shopping-cart.png")' />
+                                <span class="badge badge-counter" id="spCartCount">0</span>
+                            </a>
+                        </li>
+                        <!-------------------------------------------->
+
+                        <li class="nav-item dropdown userBox">
+                            <a title="Account Settings" class="nav-link dropdown-toggle userCircle" href="#" id="navdrop" role="button" data-toggle="dropdown" data-target="#dropdown-menu" data-hover="dropdown"><span>@initials</span> </a>
+                            <div class="userProfile dropdown-menu dropdown-menu-lg-right" aria-labelledby="navdrop" id="dropdown-menu">
+                                <span class="dropdown-item"><span class="innUserCircle">@initials</span> <span class="text">@userName</span></span>
+
+                                @*<a asp-controller="User" asp-action="ChangePassword" class="dropdown-item" id="lnkChangePwd"><span class="flatIcon"><img src='@Url.Content("~/Images" + imgPath + "/change-pass.png")' /></span> <span class="text">Change Password</span></a>*@
+
+                                @if (objSessionUser?.userRoles.Count > 0)
+                                {
+                                    foreach (UserRoleResponseVM roleNm in objSessionUser?.userRoles)
+                                    {
+                                        if (URoleId == roleNm.RoleId)
+                                        {
+                                            <a  class="dropdown-item" id="lnkRole_@roleNm.RoleId"><span class="flatIcon"><img src='@Url.Content("~/Images" + imgPath + "/learner-portal.png")' /></span> <span class="text"> @@  @roleNm.RoleName</span></a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-controller="Login" asp-action="GetFeaturesByUserRole" asp-route-RoleId="@roleNm.RoleId" class="dropdown-item" id="lnkRole_@roleNm.RoleId"><span class="flatIcon"><img src='@Url.Content("~/Images" + imgPath + "/learner-portal.png")' /></span> <span class="text"> @roleNm.RoleName</span></a>
+
+                                        }
+                                    }
+                                }
+
+                                @*<a asp-controller="@adminHome.ControllerName" asp-action="@adminHome.ActionName" class="dropdown-item" id="lnkLearnerSide"><span class="flatIcon"><img src='@Url.Content("~/Images" + imgPath + "/learner-portal.png")' /></span> <span class="text">Learner Portal</span></a>*@
+                                <a asp-controller="Login" asp-action="Login" class="dropdown-item"><span class="flatIcon"><img src='@Url.Content("~/Images" + imgPath + "/logout.png")' /></span> <span class="text">Logout</span></a>
+                            </div>
+                        </li>
+                        <li class="humburgbtn">
+                            <button type="button" id="sidebarhide" class="humburgbtn">
+                                <span class="bar"></span>
+                                <span class="bar1 bar"></span>
+                                <span class="bar2 bar"></span>
+                            </button>
+                        </li>
+
+                        <li class="mainLogo">
+                            @*<img src='@Url.Content("~/Images/main-logo.png")' style="width:100px"/>*@
+                        </li>
+
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Header END -->
+
+    <div id="wrapper">
+        <div id="sidebar-wrapper" class="sidebarwrappLayout">
+            <!-- left-menu -->
+            <div class="leftMenu">
+                <div class="sidebarmenus">
+                    <nav id="sidebar" class="sidebar-wrapper">
+                        <div id="dismisssidebar" class="dismissBtn">
+                            <span class="closemenubtn">
+                                <span class="closeBtn">&times;</span>
+                            </span>
+                        </div>
+                        <div class="sidebar-content">
+                            <div class="sidebar-menu">
+
+                                <ul class="">
+
+                                    @foreach (FeatureMasterResponseVM singleParent in lstParentFeatures)
+                                    {
+                                        string selectedClass1 = "";
+                                        string selectedClass2 = "";
+                                        string liClass = "";
+                                        string anchClass = "aClickable";
+                                        string href = "javascript:void(0);";
+                                        var childFeatures = lstChildFeatures.Where(x => x.ParentFeatureId == singleParent.FeatureId).OrderBy(x => x.DisplayOrder).ToList();
+                                        if (childFeatures.Count > 0)
+                                        {
+                                            liClass = "sidebar-dropdown";
+                                            anchClass = "";
+                                        }
+                                        else
+                                        {
+                                            href = Url.Action(singleParent.ActionName, singleParent.ControllerName);
+                                        }
+
+                                        if (level1 == singleParent.FeatureId)
+                                        {
+                                            selectedClass1 = "activeMenu";
+                                        }
+                                        else
+                                        {
+                                            selectedClass1 = "";
+                                        }
+
+                                        <li class="@liClass @selectedClass1" feature="@singleParent.FeatureId">
+                                            <a class="@anchClass" href="@href" onclick="setSession('@singleParent.FeatureId', '')">
+                                                <span class="meIcon @singleParent.CssClass">&nbsp;</span>
+                                                <span class="meText">@singleParent.FeatureName</span>
+                                            </a>
+                                            @if (childFeatures.Count > 0)
+                                            {
+                                                <div class="sidebar-submenu">
+                                                    <ul>
+                                                        @foreach (var singleChild in childFeatures)
+                                                        {
+                                                            if (level2 == singleChild.FeatureId)
+                                                            {
+                                                                selectedClass2 = "activeMenu";
+                                                            }
+                                                            else
+                                                            {
+                                                                selectedClass2 = "";
+                                                            }
+                                                            <li class="@selectedClass2">
+                                                                <a class="aClickable" onclick="setSession('@singleParent.FeatureId', '@singleChild.FeatureId')" asp-controller="@singleChild.ControllerName" asp-action="@singleChild.ActionName">@singleChild.FeatureName</a>
+                                                            </li>
+
+                                                        }
+                                                    </ul>
+                                                </div>
+
+                                            }
+
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            <!-- sidebar-menu  -->
+                        </div>
+
+                    </nav>
+                </div>
+            </div>
+            <!-- left-menu END -->
+        </div>
+        <div id="page-content-wrapper">
+            <div class="mainContent">
+                @RenderBody()
+            </div>
+        </div>
+        <div class="overlayMobile"></div>
+    </div>
+    <div class="mainFooter">
+        @*<p>Powered by Learning Bridge <sup>TM</sup></p>*@
+        <p>@Html.Raw(footerText)</p>
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+	function setSession(level1, level2) {
+		var url = '@Url.Action("SetActiveMenuSession", "Login")?level1=' + level1 + '&level2=' + level2 + '';
+		$.ajax({
+            url: url,
+            method: "POST",
+            async:false,
+            cache: false,
+            success: function (result, status, jqXHR) {
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+
+            }
+        });
+	}
+</script>
+
+@*<script type="text/javascript">
+    $("#lnkChangePwd").on('click', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        url += '?ShowLayout=0';
+        $.dialog({
+            title: 'Change Password',
+            content: 'url:' + url, columnClass: 'col-md-4 col-md-offset-4'
+        });
+    });
+
+
+</script>*@
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        $(".sidebar-dropdown > a").click(function (e) {
+            e.preventDefault();
+            $(".sidebar-submenu").slideUp(500);
+            if ($(this).parent().hasClass("activeMenu")) {
+                $(".sidebar-dropdown").removeClass("activeMenu");
+                $(this).parent().removeClass("activeMenu");
+            } else {
+
+                $(".sidebar-dropdown").removeClass("activeMenu");
+                $(this).next(".sidebar-submenu").slideDown(500);
+                $(this).parent().addClass("activeMenu");
+            }
+        });
+        $('.sidebar-submenu').parents("li").append('<span class="holder"></span>');
+
+
+        $("#close-sidebar").click(function (e) {
+            e.preventDefault();
+            $(".page-wrapper").removeClass("toggled");
+        });
+        $("#show-sidebar").click(function (e) {
+            e.preventDefault();
+            $(".page-wrapper").addClass("toggled");
+        });
+    });
+
+
+</script>
+
+<script type="text/javascript">
+    function fnCallBack(json) {
+        alert('fnCallBack');
+    }
+
+</script>
+<script type="text/javascript">
+	$(document).ajaxSend(function (event, jqxhr, settings) {
+        var url = settings.url;
+        if (url.toLowerCase().indexOf('exists') == -1 || url.toLowerCase().indexOf('changecartcourseqty') == -1) {
+            //dont show Loader
+            if (url.indexOf('GroupUserCount') > -1
+                || url.indexOf('ACPEClaimStatus') > -1
+                || url.indexOf('MonthlyEnrollmentAndCompletion') > -1
+                || url.indexOf('CourseEnrollmentAndCompletion') > -1
+                || url.indexOf('CourseAssignmentAndCompletion') > -1
+                || url.indexOf('ViewRegisteredUserSummary') > -1
+                || url.indexOf('SetActiveMenuSession') > -1
+                || url.indexOf('IsCourseUniqueIdInUse') > -1
+                || url.indexOf('IsCourseNameInUse') > -1
+                || url.indexOf('IsBRNameExists') > -1
+            ) {
+                //alert(1);
+            }
+            else {
+                $('#dvLoading').show();
+            }
+        }
+
+        //
+        if ($(".overlay").is(":visible")) {
+            $('body').css('overflow', 'hidden');
+        }
+
+
+
+        url = '@Url.Action("IsSessionAlive", "Login")';
+        $.ajax({
+            url: url,
+            global: false,
+			method: "GET",
+			async: false,
+			cache: false,
+            success: function (result, status, jqXHR) {
+
+                if (result == "0") {
+                    window.location.href = '@Url.Action("Error", "Error")';
+                }
+			},
+            error: function (jqXHR, textStatus, errorThrown) {
+
+			}
+		});
+
+    }).ajaxComplete(function (event, xhr, options) {
+        if (options.url.indexOf('IsCourseUniqueIdInUse') > -1 || options.url.indexOf('IsCourseNameInUse') > -1) { }
+        else if (options.url.indexOf('ProgressUploadCourse') == -1) { $('#dvLoading').hide(); }
+	}).ajaxError(function (event, jqxhr, settings, thrownError) {
+		var errUrl = settings.url;
+		var errText = jqxhr.responseText;
+	});
+</script>
+
+@*@if (objSessionUser.UserId != null && objSessionUser.IsPasswordChanged == false)
+{
+    <script type="text/javascript">
+
+        $("#lnkChangePwd").trigger('click');
+    </script>
+}*@
+
+
+
+
+<script type="text/javascript">
+        var timeout_in_msec =  300000; // 300000 msec = 5mins
+        window.setInterval("sendRequest11()", timeout_in_msec);
+
+    function sendRequest11() {
+        var urlp = '@Url.Action("SessionPoll", "Login")';
+        $.ajaxSetup({ global: false });
+        $.post(urlp, function (data) {
+        });
+        $.ajaxSetup({ global: true });
+        }
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        //Vikas 04Mar2020 To reset statesave
+        //$("#sidebar .aClickable").click(function () {
+        //    localStorage.removeItem("DataTables_mydatatable_/OIG/ManageOIGHitsUser");
+        //    localStorage.removeItem("DataTables_mydatatable_/OIG/ManageOIGHitsUserForMonth");
+        //    localStorage.removeItem("DataTables_mydatatable_/OIG/ManageOIGHitsVendor");
+        //    localStorage.removeItem("DataTables_mydatatable_/OIG/ManageOIGHitsVendorForMonth");
+        //});
+    });
+
+    $(document).on("click", "#dismiss,#dismissAdd, .overlay", function () {
+        $('body').css('overflow', 'visible');
+    });
+
+    const icons = document.querySelectorAll('.menuIcons');
+    icons.forEach(icon => {
+        icon.addEventListener('click', (event) => {
+            icon.classList.toggle("open");
+        });
+    });
+</script>
+
+<script>
+    $(window).resize(function () {
+        if ($(window).width() < 1030) {
+            $("#showBtnID").click(function () {
+                $(".hideShowfilter").slideDown();
+                $("#showBtnID").hide();
+            });
+            $("#hideBtnId").click(function () {
+                $(".hideShowfilter").slideUp();
+                $("#showBtnID").show();
+            });
+        } else {
+            $("#showBtnID").click(function () {
+                $(".hideShowfilter").slideDown();
+                $("#showBtnID").show();
+            });
+            $("#hideBtnId").click(function () {
+                $(".hideShowfilter").slideUp();
+                $("#showBtnID").show();
+            });
+        }
+    });
+    $(document).ready(function () {
+        if ($(window).width() < 1030) {
+            $("#showBtnID").click(function () {
+                $(".hideShowfilter").slideDown();
+                $("#showBtnID").hide();
+            });
+            $("#hideBtnId").click(function () {
+                $(".hideShowfilter").slideUp();
+                $("#showBtnID").show();
+            });
+        } else {
+            $("#showBtnID").click(function () {
+                $(".hideShowfilter").slideDown();
+                $("#showBtnID").show();
+            });
+            $("#hideBtnId").click(function () {
+                $(".hideShowfilter").slideUp();
+                $("#showBtnID").show();
+            });
+        }
+    });
+    $(window).resize(function () {
+        if ($(window).width() < 1030) {
+            $(".filterMenuIcon").click(function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(".mobileFilterMenu").slideDown();
+            });
+            $('.mobileFilterMenu').click(function (e) {
+                e.stopPropagation();
+            });
+            $('body').click(function () {
+                $('.mobileFilterMenu').hide();
+            });
+            $('.mobileFilterMenu').removeClass("filterMenuDblock");
+        }
+        else {
+            $(".filterMenuIcon").click(function () {
+                $(".hideShowfilter").slideUp();
+            });
+            $('.mobileFilterMenu').addClass("filterMenuDblock");
+        }
+    });
+    $(document).ready(function () {
+        if ($(window).width() < 1024) {
+            $('.mobileFilterMenu').removeClass("filterMenuDblock");
+            $(".filterMenuIcon").click(function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(".mobileFilterMenu").slideDown();
+            });
+            $('.mobileFilterMenu').click(function (e) {
+                e.stopPropagation();
+            });
+            $('body').click(function () {
+                $('.mobileFilterMenu').hide();
+            });
+        }
+        else {
+            $(".filterMenuIcon").click(function () {
+                $(".hideShowfilter").slideUp();
+            });
+            $('.mobileFilterMenu').addClass("filterMenuDblock");
+        }
+    });
+
+
+
+    $(document).ready(function () {
+        $('#dismisssidebar, .overlayMobile').on('click', function () {
+            // hide sidebar
+            $('#sidebar-wrapper').removeClass('active');
+            // hide overlay
+            $('.overlayMobile').removeClass('active');
+        });
+
+        $('#sidebarhide').on('click', function () {
+            // open sidebar
+            $('#sidebar-wrapper').addClass('active');
+            // fade in the overlay
+            $('.overlayMobile').addClass('active');
+            $('.collapse.in').toggleClass('in');
+            $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+        });
+    });
+</script>
+
+
+
+

@@ -1,0 +1,53 @@
+﻿
+@{
+    string userId = ViewBag.UserId;
+    string Name = ViewBag.Name;
+
+    
+var versionName = Context.Session.GetString("SessionVersionName");
+    string sessionVersion = versionName == null ? "" : Newtonsoft.Json.JsonConvert.DeserializeObject<string>(versionName);
+    string imgPath = string.IsNullOrEmpty(sessionVersion) ? "" : "/" + sessionVersion;
+}
+<style type="text/css">
+    .filterBody {
+        padding: 0px 20px;
+    }
+</style>
+
+<input type="hidden" id="hdUserId" value="@userId" />
+<div class="paddLTRT">
+    <div class="filterHeader">
+        <span class="filterInText">Role</span>
+
+        <div id="dismissAdd">
+            <img src='@Url.Content("~/Images"+imgPath+"/close.png")' />
+        </div>
+    </div>
+    <div class="filterInnHead">
+        <span class="filterInText">@Name is Admin of</span>
+    </div>
+</div>
+<div class="tab-content">
+    <div class="filterBody busRuleBody" style="max-height:650px">
+
+        <div id="divUserRoles"></div>
+        <div id="divGroupNames"></div>
+    </div>
+</div>
+
+
+<script>
+    $("#dismissAdd, .overlay").on('click', function (e) {
+        $('#sidebarFilterAddUser').removeClass('active');
+        $("#sidebarFilterAddUser").hide();
+        $('.overlay').hide();
+    });
+</script>
+
+<script type="text/javascript">
+    $("#divUserRoles").load('@Url.Action("UserRoleListData", "User")?UserId=@userId',
+        function () {
+            $("#divGroupNames").load('@Url.Action("EntityListToMakeAdmin","User")');
+    });
+
+</script>

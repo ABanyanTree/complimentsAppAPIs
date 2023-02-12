@@ -1,0 +1,205 @@
+﻿@model CreateCountryRequestVM
+@{
+
+    SelectList lstRegion = ViewBag.lstRegion;
+
+    FeatureMasterResponseVM objRights = CustomHelpers.GetFeatures(CommonConstants.FEATURE_Country);  
+
+}
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+@*<script src="~/lib/jquery/dist/jquery.min.js"></script>*@
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/lib/ckeditor/ckeditor.js"></script>
+
+<link href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+<script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<script src="~/lib/jquery.alphanum/jquery.alphanum.min.js"></script>
+
+
+<form id="AddEditCountry" asp-action="AddEditCountry" asp-controller="Country" method="post" enctype="multipart/form-data">
+    @Html.HiddenFor(model => model.CountryID, new { @id = "CountryID" })
+    @Html.HiddenFor(model => model.IsActive)
+    <div class="filterBodyAddUser float-right">
+        <div class="filterWrapp">
+            <div class="bulkImport">
+                <div class="paddLTRT">
+                    <div class="filterHeader">
+                        <span class="filterInText">Add/Edit Country</span>
+                        <div id="dismissAdd">
+                            <img src="@Url.Content("~/Images/close.png")" />
+                        </div>
+                    </div>
+                </div>
+                <div class="filterBody addEditGroupHT addEditEvent">
+                    <div class="userInfo">
+                        <div class="pos">
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="successBox" style="display:none">
+                                        <div class="successBoxText float-left">
+                                            <h4>Success</h4>
+                                            @if (string.IsNullOrEmpty(Model.CountryID))
+                                            {
+                                                <label class="lblMessage">Country added successfully.</label>
+                                            }
+                                            else
+                                            {
+                                                <label class="lblMessage">Country updated successfully.</label>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="pull-right editIcon" style="display:none" id="editData">
+                                        <a href="#" onclick="EditFun()"><img src='@Url.Content("~/images/edit-g.png")' /></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-8 col-md-7 col-sm-7 col-xs-12">
+                                    <div class="form-group">
+                                        <label>Country<span class="starValid">*</span></label>
+                                        @Html.TextBoxFor(x => x.CountryName, new { @class = "form-control", @maxlength = "50" })
+                                        <span asp-validation-for="CountryName" class="redColor"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label>
+                                            Region
+                                            <span class="starValid">*</span>
+                                        </label>
+                                        @Html.DropDownListFor(x => Model.RegionID, lstRegion, "Select", new { @class = "form-control" })
+                                        <span asp-validation-for="RegionID" class="redColor"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        @Html.TextAreaFor(x => x.CountryDescription, new { @class = "form-control", @maxlength = "500" })
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="tabRTFooter" style="display:none">
+                    <div class="bulkImpFooter">
+                        <ul class="bulkImpListing">
+                            <li>
+                                @if (objRights != null && (objRights.IsAdd == true || objRights.IsEdit == true))
+                                {
+                                    <button type="button" class="btn btn-primary btnSearch" id="btnSubmit">Submit</button>
+                                }
+                                </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    $("#dismissAdd, .overlay").on('click', function (e) {
+        $('#sidebarFilterAddUser').removeClass('active');
+        $("#sidebarFilterAddUser").hide();
+        $('.overlay').hide();
+
+    });
+
+
+</script>
+
+<script>
+    $(".Alphanum").alphanum();
+
+
+    $("#btnSubmit").on('click', function (e) {
+        e.preventDefault();
+
+        $('#AddEditCountry').find('input:text').each(function () {
+            $(this).val($.trim($(this).val()));
+        });
+
+        if ($('#AddEditCountry').valid()) {
+
+            var formAction = $('#AddEditCountry').attr("action");
+            var fdata = new FormData();
+            var params = $('#AddEditCountry').serializeArray();
+            $.each(params, function (i, val) {
+                fdata.append(val.name, val.value);
+            });
+
+            $.ajax({
+                type: 'post',
+                url: formAction,
+                data: fdata,
+                processData: false,
+                contentType: false
+            }).done(function (result) {
+                debugger;
+                if (result.isSuccess == true) {
+                    debugger;
+
+                    $('#CountryID').val(result.CountryID);
+                    $('#btnSearch1').click();
+                    $('.successBox').show();
+                    $('#lblMessage').text(result.message);
+
+                    $('#AddEditCountry input').attr('readonly', 'readonly');
+                    $('#AddEditCountry select').attr('readonly', 'readonly');
+                    $('#AddEditCountry textarea').attr('readonly', 'readonly');
+                    $("#AddEditCountry input").attr('disabled', 'disabled');
+                    $("#AddEditCountry select").attr('disabled', 'disabled');
+                    $("#AddEditCountry textarea").attr('disabled', 'disabled');
+
+                    $(".tabRTFooter .btnSearch").removeClass("btn-primary");
+                    $(".tabRTFooter .btnSearch").addClass("btn-default disabled");
+                    $('.tabRTFooter .btnSearch').prop('disabled', true);
+                    $('#editData').show();
+
+                } else {
+                    showWarningMsg('something went wrong ');
+                }
+            });
+        }
+    });
+
+
+    function EditFun() {
+        $('#AddEditCountry input').attr('readonly', false);
+        $('#AddEditCountry select').attr('readonly', false);
+        $('#AddEditCountry textarea').attr('readonly', false);
+        $("#AddEditCountry input").removeAttr('disabled');
+        $("#AddEditCountry select").removeAttr('disabled');
+        $("#AddEditCountry textarea").removeAttr('disabled');
+
+
+
+        $(".tabRTFooter .btnSearch").addClass("btn-primary");
+        $(".tabRTFooter .btnSearch").removeClass("btn-default disabled");
+        $('.tabRTFooter .btnSearch').prop('disabled', false);
+        $('.successBox').hide();
+        $('#editData').hide();
+    }
+
+</script>
+
+<script type="text/javascript">
+    $('.tabRTFooter').show();
+</script>
+
+

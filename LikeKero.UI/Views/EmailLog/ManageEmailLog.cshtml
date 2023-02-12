@@ -1,0 +1,224 @@
+﻿@model EmailSentLogRequestVM
+@{
+    ViewData["Title"] = "Email Logs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    
+var versionName = Context.Session.GetString("SessionVersionName");
+    string sessionVersion = versionName == null ? "" : Newtonsoft.Json.JsonConvert.DeserializeObject<string>(versionName);
+    string imgPath = string.IsNullOrEmpty(sessionVersion) ? "" : "/" + sessionVersion;
+}
+
+<link href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+<script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+
+<div class="conHeader">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="pull-left">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">Email Logs</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="conInner">
+    <div class="formGroupTop pos mo-pt-0">
+        <div class="mobileFilter">
+            <div class="showFilterBtn" id="showBtnID"><button type="button" class="searchfilterbtn">Show Search Filter<i class="fa fa-chevron-down"></i></button></div>
+            <div class="hideShowfilter">
+                <div class="filterData pt-3 mobile4Lis">
+                    <ul class="formGroupTopListing">
+                        <li class="firstLastName">
+                            <div class="form-group">
+                                @Html.TextBoxFor(x => Model.EmailTo, new { @class = "form-control", placeholder = "Email Sent To" })
+                            </div>
+                        </li>
+                        <li class="firstLastName">
+                            <div class="form-group">
+                                @Html.TextBoxFor(x => Model.Subject, new { @class = "form-control", placeholder = "Subject" })
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-group">
+                                <div class="calIcon">
+                                    @Html.TextBoxFor(x => Model.ActualSentDate, "{0: MMM-dd-yyyy}", new { @class = "form-control styledate", placeholder = "Sent Date", @data_date_end_date = "0d" })
+                                    <button type="button" class="ui-datepicker-trigger clsDatePicker"><i class="fa fa-calendar cal-btn"></i></button>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-group mob-margin-tp0">
+                                <button type="button" class="btn btn-primary btn-search" id="btnSearch">@*<i class="fa fa-search"></i>*@ <img src='@Url.Content("~/images"+imgPath+"/search.png")' /> </button>
+                                <button type="button" class="btn btn-default btn-clear" id="btnClear">@*<i class="fa fa-refresh"></i>*@ <img src='@Url.Content("~/images"+imgPath+"/refresh.png")' /></button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="hideFilterBtn" id="hideBtnId"><button type="button" class="searchfilterbtn">Hide Search Filter <i class="fa fa-chevron-up"></i></button></div>
+            </div>
+        </div>
+        <!--Add/Edit User-->
+        <div id="filterBodyAddUser" class="float-right">
+            <div class="filterWrapp">
+                <div id="sidebarFilterAddUser" class="bulkImport">
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+            <div id="divDataTable_length"></div>
+            <div class="chkTBL">
+                <div class="bulkImpLogHT emailLogTbl mobileTablenowrap">
+                    <table id="myDataTable" class="table">
+                        <thead>
+                            <tr class="uppercaseText">
+                                <th>Email Sent To</th>
+                                @*<th>CC</th>
+                                <th>BCC</th>*@
+                                <th>Subject</th>
+                                <th>Sent Date</th>
+                                <th class="text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="divdataTables_info"></div>
+            <style>
+                .buttonshover {
+                    z-index: 10 !important;
+                }
+            </style>
+            <script type="text/javascript">
+    $(document).ready(function () {
+        $("#myDataTable").tableHeadFixer({ "head": true, "top": 1 });
+        var langUrl = $("#LangUrl").val();
+        var mytable = $('#myDataTable').dataTable({
+            "ajax": {
+                "url": "@Url.Content("~/EmailLog/FillEmailLogList")",
+                "type": "POST",
+                "error": function (x, y, z) {
+                }
+            },
+            "language":
+            {
+                "url": langUrl
+            },
+            "aaSorting": [[4, 'desc']],
+            "serverSide": true,
+            "bStateSave": false,
+            //"pagingType": "listbox",  //pagination type using pulgin
+            "processing": true,
+            //"sDom": 'lrtip',
+             "pageLength": 50,
+            "pagingType": "full_numbers",
+            "dom": '<"top"i>rt<"bottom"flp><"clear">',
+            "filter": false,
+             "oLanguage": {
+            "oPaginate": {
+            "sFirst": "<i class='fa fa-angle-double-left'></i>",
+            "sPrevious": "«",
+            "sNext": "»",
+            "sLast": "<i class='fa fa-angle-double-right'></i>"
+             }
+            },
+            "bDeferRender": true,//hide the default search filter textbox by removing "f"
+            "aoColumns":
+                [
+                    { "data": "EmailTo", "sName": "EmailTo" },
+                    //{ "data": "CC", "sName": "CC" },
+                    //{ "data": "BCC", "sName": "BCC" },
+                    { "data": "Subject", "sName": "Subject" },
+                    { "data": "ActualSentDateDisplay", "sName": "ActualSentDate" },
+                    {
+                        "data": "EmailLogId", "sName": "", "class": "", "orderable": false, "mRender": function (data, type, full) {
+                            if (data != null) {
+
+                                return "<div class='tablehoverbuttons' id='sidebarFilterAddUser1'> <i class='fa fa-ellipsis-h'></i> <div class='buttonshover'><div class='editbtn'><a class='' href='#' onClick=ViewEmail('" + data + "')><span><img  title='View' src='@Url.Content("~/images"+imgPath+"/view.png")' /></span></a></div> </div> </div>";
+
+                            }
+                            else
+                                return "";
+                        }
+                    },
+                    { "data": "ActualSentDate", "sName": "ActualSentDate", "visible": false },
+                ]
+        });
+         mytable.on('order.dt', function () { $('.dataTables_paginate,.dataTables_info').show(); });
+        mytable.on('length.dt', function (e, settings, len) { $('.dataTables_paginate,.dataTables_info').show(); });
+
+        $("#divDataTable_length").append($(".dataTables_info"));
+        $("#divdataTables_info").append($(".dataTables_length"));
+        $("#divdataTables_info").append($(".dataTables_paginate"));
+        function fnGetDataForEmailLog() {
+
+            var searchObj = new Object();
+            searchObj.EmailTo = $('#EmailTo').val();
+            searchObj.Subject = $('#Subject').val();
+            searchObj.ActualSentDate = $('#ActualSentDate').val();
+
+            return searchObj;
+        }
+
+        function fnFilterEmailLog() {
+            searchObj = fnGetDataForEmailLog();
+            $("#myDataTable").dataTable().fnMultiFilter({
+                "EmailTo": searchObj.EmailTo,
+                "Subject": searchObj.Subject,
+                "ActualSentDate": searchObj.ActualSentDate
+            });
+        }
+
+        function clearfilter() {
+            $('#EmailTo').val('');
+            $('#Subject').val('');
+            $('#ActualSentDate').val('');
+            fnFilterEmailLog();
+        }
+
+        $('#btnClear').click(function () {
+            clearfilter();
+        });
+
+        $('#btnClearFilter').click(function () {
+            clearInsidefilter();
+        });
+
+        $('#btnSearch').click(function () {
+            fnFilterEmailLog();
+        });
+    });
+            </script>
+
+            <script type="text/javascript">
+                $(".styledate").datepicker({
+                    format: 'M-dd-yyyy',
+                    autoclose: true,
+                    clearBtn: true,
+                    todayBtn: false,
+                    todayHighlight: true
+                });
+
+                $(".clsDatePicker").on('click', function (e) {
+                    $(this).closest('.calIcon').find('.styledate').datepicker().focus();
+                });
+            </script>
+
+            <script type="text/javascript">
+
+    function ViewEmail(data) {
+        $('#sidebarFilterAddUser').show();
+        $('#sidebarFilterAddUser').addClass('active');
+        $('.overlay').show();
+        $('.collapse.in').toggleClass('in');
+        $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+
+
+        var url = '@Url.Action("GetEmailDetails", "EmailLog")?EmailLogId=' + data + '';
+        $("#sidebarFilterAddUser").load(url);
+    }
+            </script>

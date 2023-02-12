@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-grid.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-reboot.css" />
+        <link href="~/css/app-theme.css" rel="stylesheet" />
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <link href="~/css/font-awesome-four.min.css" rel="stylesheet" />
+        <link href="~/css/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+        <script src="~/js/jquery.mCustomScrollbar.concat.min.js"></script>
+        <link href="~/css/jquery-confirm.css" rel="stylesheet" />
+        <script src="~/js/jquery-confirm.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+        <script src="~/js/Utility.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" asp-href-include="~/lib/bootstrap/dist/css/bootstrap.css,~/lib/bootstrap/dist/css/bootstrap-grid.css,~/lib/bootstrap/dist/css/bootstrap-reboot.css" />
+        <link href="~/css/app-theme.css" rel="stylesheet" />
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <link href="~/css/font-awesome-four.min.css" rel="stylesheet" />
+        <link href="~/css/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+        <script src="~/js/jquery.mCustomScrollbar.concat.min.js"></script>
+        <link href="~/css/jquery-confirm.css" rel="stylesheet" />
+        <script src="~/js/jquery-confirm.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+        <script src="~/js/Utility.js"></script>
+
+    </environment>
+</head>
+<body>
+    <div id="dvLoading" class="loaderImg text-center" style="display:none">
+        <div class="ladingdiv">
+            <div class="mainLoader">
+            </div>
+            <h4>Loading...</h4>
+        </div>
+    </div>
+
+
+
+
+    <div class="overlay"></div>
+
+    <!-- Header Start -->
+    <div class="navbar-fixed-top">
+        <div class="logoDiv">
+            <img src='@Url.Content("~/Images/main-logo.png")' />
+        </div>
+        @*<div class="navbarRight">
+            <nav class="navbar navbar-expand-lg">
+                <button class="navbar-toggler" type="button" data-target="#navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown userBox">
+                            <a class="nav-link dropdown-toggle userCircle" href="#" id="navdrop" role="button" data-toggle="dropdown" data-hover="dropdown">@initials</a>
+                            <div class="userProfile dropdown-menu dropdown-menu-lg-right" aria-labelledby="navdrop">
+                                <span class="dropdown-item"><span class="innUserCircle">@initials</span> <span class="text">@userName</span></span>
+                                <a asp-controller="User" asp-action="ChangePassword" class="dropdown-item" id="lnkChangePwd"><span class="flatIcon"><img src='@Url.Content("~/Images/change-pass.png")' /></span> <span class="text">Change Password</span></a>
+                                <a asp-controller="MyAssignments" asp-action="CoursePath" class="dropdown-item" id="lnkLearnerSide"><span class="flatIcon"><img src='@Url.Content("~/Images/learner-portal.png")' /></span> <span class="text">Learner Portal</span></a>
+                                <a asp-controller="Login" asp-action="Logout" class="dropdown-item"><span class="flatIcon"><img src='@Url.Content("~/Images/logout.png")' /></span> <span class="text">Logout</span></a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>*@
+    </div>
+    <!-- Header END -->
+
+    <div id="wrapper">
+        <div id="page-content-wrapper">
+            <div class="mainContent">
+                @RenderBody()
+            </div>
+        </div>
+
+    </div>
+    <div class="mainFooter">
+        <p>Powered by Learning Bridge <sup>TM</sup></p>
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+    $(document).ajaxSend(function (event, jqxhr, settings) {
+        var url = settings.url;
+        $('#dvLoading').show();
+
+    }).ajaxComplete(function (event, xhr, options) {
+        $('#dvLoading').hide();
+    }).ajaxError(function (event, jqxhr, settings, thrownError) {
+        var errUrl = settings.url;
+        var errText = jqxhr.responseText;
+    });
+</script>
+
+
+
+

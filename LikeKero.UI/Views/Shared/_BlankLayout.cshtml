@@ -1,0 +1,84 @@
+﻿@using Microsoft.AspNetCore.Http
+<!DOCTYPE html>
+@{
+    var versionName = Context.Session.GetString("SessionVersionName");
+    string sessionVersion = versionName == null ? "" : Newtonsoft.Json.JsonConvert.DeserializeObject<string>(versionName);
+}
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=10" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+
+    <environment include="Development">
+        @if (string.IsNullOrEmpty(sessionVersion))
+        {
+            <link rel="stylesheet" asp-href-include="~/lib/bootstrap/dist/css/bootstrap.css,~/lib/bootstrap/dist/css/bootstrap-grid.css,~/lib/bootstrap/dist/css/bootstrap-reboot.css" />
+            <link href="~/css/app-theme.css" rel="stylesheet" />
+            <script src="~/lib/jquery/dist/jquery.js"></script>
+            <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+            <script src="~/lib/jquery-validation/dist/additional-methods.js"></script>
+            <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+            <link href="~/css/font-awesome-four.min.css" rel="stylesheet" />
+            <link href="~/css/jquery-confirm.css" rel="stylesheet" />
+            <script src="~/js/jquery-confirm.js"></script>
+            <script src="~/js/Utility.js"></script>
+            <link rel="shortcut icon" type="image/x-icon" href="~/images/favicon.ico" />
+        }
+        else
+        {
+            <link rel="stylesheet" asp-href-include="~/lib/bootstrap/dist/css/bootstrap.css,~/lib/bootstrap/dist/css/bootstrap-grid.css,~/lib/bootstrap/dist/css/bootstrap-reboot.css" />
+            <link href="~/css/@sessionVersion/app-theme.css" rel="stylesheet" />
+            <script src="~/lib/jquery/dist/jquery.js"></script>
+            <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+            <script src="~/lib/jquery-validation/dist/additional-methods.js"></script>
+            <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+            <link href="~/css/font-awesome-four.min.css" rel="stylesheet" />
+            <link href="~/css/jquery-confirm.css" rel="stylesheet" />
+            <script src="~/js/jquery-confirm.js"></script>
+            <script src="~/js/Utility.js"></script>
+            <link rel="shortcut icon" type="image/x-icon" href="~/images/@sessionVersion/favicon.ico" />
+        }
+
+    </environment>
+    <environment exclude="Development">
+        @if (string.IsNullOrEmpty(sessionVersion))
+        {
+            <link rel="stylesheet" asp-href-include="~/lib/bootstrap/dist/css/bootstrap.css,~/lib/bootstrap/dist/css/bootstrap-grid.css,~/lib/bootstrap/dist/css/bootstrap-reboot.css" />
+            <link href="~/css/app-theme.css" rel="stylesheet" />
+            <script src="~/lib/jquery/dist/jquery.js"></script>
+            <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+            <script src="~/lib/jquery-validation/dist/additional-methods.js"></script>
+            <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+            <link href="~/css/font-awesome-four.min.css" rel="stylesheet" />
+            <link href="~/css/jquery-confirm.css" rel="stylesheet" />
+            <script src="~/js/jquery-confirm.js"></script>
+            <script src="~/js/Utility.js"></script>
+            <link rel="shortcut icon" type="image/x-icon" href="~/images/favicon.ico" />
+        }
+        else
+        {
+            <link rel="stylesheet" asp-href-include="~/lib/bootstrap/dist/css/bootstrap.css,~/lib/bootstrap/dist/css/bootstrap-grid.css,~/lib/bootstrap/dist/css/bootstrap-reboot.css" />
+            <link href="~/css/@sessionVersion/app-theme.css" rel="stylesheet" />
+            <script src="~/lib/jquery/dist/jquery.js"></script>
+            <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+            <script src="~/lib/jquery-validation/dist/additional-methods.js"></script>
+            <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+            <link href="~/css/font-awesome-four.min.css" rel="stylesheet" />
+            <link href="~/css/jquery-confirm.css" rel="stylesheet" />
+            <script src="~/js/jquery-confirm.js"></script>
+            <script src="~/js/Utility.js"></script>
+            <link rel="shortcut icon" type="image/x-icon" href="~/images/@sessionVersion/favicon.ico" />
+        }
+    </environment>
+</head>
+<body>
+    <div>
+        @RenderBody()
+    </div>
+</body>
+</html>

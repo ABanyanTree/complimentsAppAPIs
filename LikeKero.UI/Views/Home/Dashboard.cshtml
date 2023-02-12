@@ -1,0 +1,48 @@
+﻿@model UserListRequestVM
+@using LikeKero.UI.ViewModels
+@using Microsoft.AspNetCore.Http
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var value = Context.Session.GetString("UserObject");
+    AuthSuccessResponseVM objSessionUser = value == null ? default(AuthSuccessResponseVM) : Newtonsoft.Json.JsonConvert.DeserializeObject<AuthSuccessResponseVM>(value);
+    string roleName = objSessionUser?.userRoles.Count > 0 ? objSessionUser?.userRoles[0].RoleId : string.Empty;
+}
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts-3d.js"></script>
+<script src="https://code.highcharts.com/modules/no-data-to-display.js"></script>
+<script src="~/js/Marquee/jquery.marquee.min.js"></script>
+<script src="~/js/Marquee/jquery.easing.min.js"></script>
+<style>
+    .mainContent {
+        background: none;
+        padding: 0px
+    }
+</style>
+
+<div class="mainDashboard">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding5">
+            <div class="welcomeText">
+                Hi, Welcome @ViewBag.LoggedInUser
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding5">
+            <div class="announcementMarqee">
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding5">
+            <div class="regUserSummary associationDashboard">
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<div>&nbsp;</div>
